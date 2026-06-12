@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { BUDGETS, GOALS, PLATFORMS } from "@/lib/constants";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { AgencyLeadInsert } from "@/types";
 
 function isNonEmptyString(value: unknown): value is string {
@@ -26,6 +27,17 @@ function validate(body: Record<string, unknown>): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  const { allowed, retryAfterSec } = checkRateLimit(ip);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(retryAfterSec) } },
+    );
+  }
+
   let body: Record<string, unknown>;
   try {
     const parsed: unknown = await request.json();
@@ -53,8 +65,7 @@ export async function POST(request: NextRequest) {
       : null,
     primary_goal: body.primary_goal as string,
     message: isNonEmptyString(body.message) ? body.message.trim() : null,
-    ip_address:
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    ip_address: ip === "unknown" ? null : ip,
   };
 
   try {
