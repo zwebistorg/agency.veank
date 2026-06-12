@@ -23,14 +23,19 @@ export default function ContactForm() {
       primary_goal: data.get("primary_goal"),
       message: data.get("message") || null,
     };
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    setSubmitting(false);
-    if (res.ok) setDone(true);
-    else setError("Something went wrong. Please try again or email us directly.");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) setDone(true);
+      else setError("Something went wrong. Please try again or email us directly.");
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (done) {

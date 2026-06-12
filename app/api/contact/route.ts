@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { BUDGETS, GOALS, PLATFORMS } from "@/lib/constants";
 import type { AgencyLeadInsert } from "@/types";
-
-const budgets = ["Under $500", "$500-$2,000", "$2,000-$10,000", "$10,000+"];
-const goals = [
-  "More leads",
-  "More ecommerce sales",
-  "Brand awareness",
-  "Not sure yet",
-];
-const platforms = ["Google Ads", "Meta Ads", "TikTok Ads", "None yet", "Other"];
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
@@ -20,14 +12,14 @@ function validate(body: Record<string, unknown>): string | null {
   if (!isNonEmptyString(body.name)) return "Name is required";
   if (!isNonEmptyString(body.email) || !/^\S+@\S+\.\S+$/.test(body.email))
     return "A valid email is required";
-  if (!isNonEmptyString(body.monthly_budget) || !budgets.includes(body.monthly_budget))
+  if (!isNonEmptyString(body.monthly_budget) || !(BUDGETS as readonly string[]).includes(body.monthly_budget))
     return "Monthly budget is required";
-  if (!isNonEmptyString(body.primary_goal) || !goals.includes(body.primary_goal))
+  if (!isNonEmptyString(body.primary_goal) || !(GOALS as readonly string[]).includes(body.primary_goal))
     return "Primary goal is required";
   if (
     body.current_platform != null &&
     (!Array.isArray(body.current_platform) ||
-      !body.current_platform.every((p) => platforms.includes(p as string)))
+      !body.current_platform.every((p) => typeof p === "string" && (PLATFORMS as readonly string[]).includes(p)))
   )
     return "Invalid platform selection";
   return null;
@@ -36,7 +28,11 @@ function validate(body: Record<string, unknown>): string | null {
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    const parsed: unknown = await request.json();
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+    body = parsed as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }

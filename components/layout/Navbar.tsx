@@ -25,6 +25,11 @@ export default function Navbar() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-200 ${

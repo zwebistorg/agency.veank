@@ -1,27 +1,7 @@
+export { BUDGETS as budgets, PLATFORMS as platforms, GOALS as goals } from "@/lib/constants";
+
 export const inputClass =
   "w-full border-2 border-ag-border bg-ag-surface px-4 py-3 text-ag-white placeholder:text-ag-muted/60 focus:border-ag-yellow focus:outline-none";
-
-export const budgets = [
-  "Under $500",
-  "$500-$2,000",
-  "$2,000-$10,000",
-  "$10,000+",
-];
-
-export const platforms = [
-  "Google Ads",
-  "Meta Ads",
-  "TikTok Ads",
-  "None yet",
-  "Other",
-];
-
-export const goals = [
-  "More leads",
-  "More ecommerce sales",
-  "Brand awareness",
-  "Not sure yet",
-];
 
 type FormFieldProps = {
   label: string;
