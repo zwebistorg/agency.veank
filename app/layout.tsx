@@ -37,6 +37,12 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://agency.veank.com",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Veank Agency — Performance Marketing. Google Ads, SEO & Paid Social.",
+    description:
+      "Veank Agency runs Google Ads, Meta Ads, TikTok Ads, SEO and social media for businesses globally. Free audit. Results-first approach.",
+  },
 };
 
 const jsonLd = {
